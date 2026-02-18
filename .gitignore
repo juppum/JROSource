@@ -5,3 +5,6 @@
 /RRMD/Library
 /RRMD/Temp
 /RRMD/Logs
+/RRMD/UserSettings
+/.vs
+*.vsconfig
