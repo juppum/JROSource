@@ -1,0 +1,79 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+
+class PlayerPlane {
+public:
+    // Core Stats (The "Diablo" side)
+    float maxFuel = 100.0f;
+    float currentFuel = 100.0f;
+    float fuelDrainRate = 2.0f;     // Base drain per second
+    float thrustSpeed = 300.0f;     // Side-to-side agility
+    float scrollSpeed = 150.0f;     // Forward velocity
+    
+    sf::RectangleShape shape;
+
+    PlayerPlane() {
+        shape.setSize(sf::Vector2f(40, 40));
+        shape.setFillColor(sf::Color::Yellow);
+        shape.setOrigin(20, 20);
+        shape.setPosition(400, 500); // Start middle-bottom
+    }
+
+    void update(float deltaTime) {
+        // 1. Constant Fuel Drain
+        currentFuel -= fuelDrainRate * deltaTime;
+
+        // 2. Movement Input (Aerodynamics)
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            shape.move(-thrustSpeed * deltaTime, 0);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            shape.move(thrustSpeed * deltaTime, 0);
+        }
+
+        // 3. The "River Raid" Speed Control
+        // Accelerating drains fuel faster (Risk vs Reward)
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            scrollSpeed = 400.0f;
+            fuelDrainRate = 8.0f; 
+        } else {
+            scrollSpeed = 150.0f;
+            fuelDrainRate = 2.0f;
+        }
+
+        // 4. Death Check
+        if (currentFuel <= 0) {
+            std::cout << "FUEL DEPLETED. YOU HAVE DIED." << std::endl;
+            // Trigger Hardcore/Softcore logic here
+        }
+    }
+
+    // The "Siphon" Mechanic (called on collision with Fuel Tankers)
+    void siphonFuel(float amount) {
+        currentFuel += amount;
+        if (currentFuel > maxFuel) currentFuel = maxFuel;
+        std::cout << "Siphoned! Current Fuel: " << currentFuel << std::endl;
+    }
+};
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "River Raid: Resurrected Prototype");
+    sf::Clock clock;
+    PlayerPlane player;
+
+    while (window.isOpen()) {
+        float dt = clock.restart().asSeconds();
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) window.close();
+        }
+
+        player.update(dt);
+
+        window.clear(sf::Color(20, 20, 40)); // Dark "Gothic" Water
+        window.draw(player.shape);
+        window.display();
+    }
+
+    return 0;
+}

@@ -1,0 +1,47 @@
+#include <cmath>
+#include <vector>
+
+class RiverGenerator {
+public:
+    float screenWidth = 800.0f;
+    float baseRiverWidth = 300.0f; // How wide the "water" is
+    float difficultyScaling = 0.05f; // Makes it narrower over time
+
+    struct RiverBoundaries {
+        float leftWall;
+        float rightWall;
+    };
+
+    // This is the core "Seed" logic
+    RiverBoundaries getBoundariesAt(float distance) {
+        // Create a shifting center point using combined Sine waves
+        float movement = std::sin(distance * 0.005f) * 100.0f;
+        movement += std::sin(distance * 0.01f) * 40.0f; // Adds jaggedness
+        
+        float currentCenter = screenWidth / 2.0f + movement;
+        
+        // Narrow the river as the player goes further (Diablo difficulty scaling)
+        float currentWidth = baseRiverWidth - (distance * difficultyScaling);
+        if (currentWidth < 100.0f) currentWidth = 100.0f; // Minimum width
+
+        return { currentCenter - (currentWidth / 2.0f), currentCenter + (currentWidth / 2.0f) };
+    }
+};
+3. Integrating with the Game Loop
+In your main loop, you would draw the river by calculating segments ahead of the player.
+C++
+// Inside the draw loop:
+for (int i = 0; i < 600; i += 10) { // Draw river segments for the whole screen height
+    float worldY = playerDistance + i;
+    auto bounds = river.getBoundariesAt(worldY);
+
+    // Draw Left Bank (from 0 to bounds.leftWall)
+    // Draw Right Bank (from bounds.rightWall to screenWidth)
+    // Draw Water (between the walls)
+}
+
+// Collision Detection
+auto currentBounds = river.getBoundariesAt(playerDistance);
+if (player.x < currentBounds.leftWall || player.x > currentBounds.rightWall) {
+    player.die(); // "Softcore" or "Hardcore" logic triggers here
+}

@@ -1,0 +1,21 @@
+void drawHUD(sf::RenderWindow& window, PlayerPlane& player) {
+    // 1. Draw the Fuel Globe (The "Life" Bar)
+    float fuelPercent = player.currentFuel / player.maxFuel;
+    sf::CircleShape globe(50);
+    globe.setPosition(350, 500); // Bottom Center
+    globe.setFillColor(sf::Color(200, 50, 0)); // Red-Orange
+    
+    // Shader effect: Lower the "liquid" level based on fuelPercent
+    // drawFuelLiquid(fuelPercent);
+
+    // 2. Draw XP Bar (Top Center)
+    sf::RectangleShape xpBar(sf::Vector2f(fuelPercent * 400.0f, 10.0f));
+    xpBar.setFillColor(sf::Color(128, 0, 128)); // Purple
+    window.draw(xpBar);
+
+    // 3. Distance Counter (Atari Font)
+    sf::Text distanceText;
+    distanceText.setString(std::to_string((int)player.distanceTraveled) + " KM");
+    distanceText.setPosition(700, 20);
+    window.draw(distanceText);
+}

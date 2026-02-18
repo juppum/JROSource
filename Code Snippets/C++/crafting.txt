@@ -1,0 +1,22 @@
+class Crafter {
+public:
+    LootItem combine(std::vector<LootItem>& inputSlots) {
+        // Example Recipe: 3 Commons = 1 Magic
+        if (inputSlots.size() == 3 && allCommon(inputSlots)) {
+            LootItem newItem = generator.rollForLoot();
+            newItem.rarity = Rarity::Magic;
+            newItem.name = "Polished " + inputSlots[0].name;
+            return newItem;
+        }
+        
+        // Failed recipe returns "Useless Slag" (Waste)
+        return {"Burnt Scrap", Rarity::Common, sf::Color(50, 50, 50)};
+    }
+
+private:
+    bool allCommon(const std::vector<LootItem>& items) {
+        for (auto& i : items) if (i.rarity != Rarity::Common) return false;
+        return true;
+    }
+    LootGenerator generator;
+};

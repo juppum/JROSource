@@ -1,0 +1,34 @@
+enum class AIState { Idle, Patrolling, Attacking, Fleeing };
+
+class EnemyShip {
+public:
+    sf::Vector2f position;
+    AIState state = AIState::Patrolling;
+    float health = 50.0f;
+    bool isElite = false;
+    std::string affix = "";
+
+    void update(float dt, sf::Vector2f playerPos) {
+        float distanceToPlayer = std::sqrt(std::pow(playerPos.x - position.x, 2) + 
+                                           std::pow(playerPos.y - position.y, 2));
+
+        switch (state) {
+            case AIState::Patrolling:
+                // Move back and forth across a section of the river
+                position.x += std::sin(position.y * 0.05f) * 2.0f; 
+                if (distanceToPlayer < 400.0f) state = AIState::Attacking;
+                break;
+
+            case AIState::Attacking:
+                // Simple AI: Try to align horizontally with the player to fire
+                if (position.x < playerPos.x) position.x += 100.0f * dt;
+                else position.x -= 100.0f * dt;
+                
+                // If it's a "Mortar" Elite, trigger special attack logic
+                if (isElite && affix == "Mortar") {
+                    // Call mortar_fire_logic()
+                }
+                break;
+        }
+    }
+};
